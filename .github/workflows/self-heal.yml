@@ -1,0 +1,61 @@
+name: Scheduled self-healing check
+
+# Runs Sentinel + Tracker against the live Amkette collector on a schedule,
+# then commits the updated healing_log.json / products_snapshot.json /
+# product_changes.json back to the repo so the dashboards always reflect
+# the most recent check — no manual "run it from my laptop" required.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours
+  workflow_dispatch: {}      # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write            # needed to commit the updated JSON back
+
+jobs:
+  self-heal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node (for the Bright Data CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Bright Data CLI
+        run: npm install -g @brightdata/cli
+
+      - name: Authenticate (non-interactive, via secret)
+        env:
+          BRIGHTDATA_API_KEY: ${{ secrets.BRIGHTDATA_API_KEY }}
+        run: bdata login --api-key "$BRIGHTDATA_API_KEY"
+
+      - name: Run Sentinel (health check + heal if needed)
+        run: |
+          python3 sentinel.py \
+            --collector-id c_msyndimi68dk1qu6l \
+            --url "https://www.amkette.com/pages/evofox" \
+            --schema schema.amkette.json \
+            --once --auto-approve
+
+      - name: Run Tracker (price/stock diff)
+        run: |
+          python3 tracker.py \
+            --collector-id c_msyndimi68dk1qu6l \
+            --url "https://www.amkette.com/pages/evofox"
+
+      - name: Commit updated state, if anything changed
+        run: |
+          git config user.name "sentinel-bot"
+          git config user.email "actions@github.com"
+          git add healing_log.json products_snapshot.json product_changes.json
+          git diff --cached --quiet || git commit -m "chore: scheduled self-heal check [skip ci]"
+          git push
