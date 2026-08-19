@@ -67,7 +67,7 @@ Sentinel is the layer Scraper Studio doesn't provide out of the box: **the notic
                  └──────────────────┬───────────────────┘
                                     ▼
                         ┌───────────────────────┐
-                        │      console.html        │
+                        │        index.html         │
                         │  (static, reads JSON       │
                         │   over fetch, no backend)    │
                         └───────────────────────┘
@@ -140,7 +140,7 @@ Every change is appended to `product_changes.json` (append-only history); the fu
 
 ### 6. Console — the UI layer
 
-`console.html` is a single static file — sidebar nav (Overview / Healing Log / Products / Settings), no backend, no build step. It `fetch()`es `healing_log.json`, `products_snapshot.json`, and `product_changes.json` directly off disk (served via `python3 -m http.server`) and re-renders every 3 seconds. Every number on screen — the health ring, the sparkline, the terminal log lines, the product cards — is computed from those real JSON files at render time; nothing is hardcoded or simulated. The "Re-check now" button doesn't fake a scraping animation — it force-refetches the same JSON with a real loading state.
+`index.html` is a single static file — sidebar nav (Overview / Healing Log / Products / Settings), no backend, no build step, no click required to reach it. It `fetch()`es `healing_log.json`, `products_snapshot.json`, and `product_changes.json` directly off disk (served via `python3 -m http.server`) and re-renders every 3 seconds. Every number on screen — the health ring, the sparkline, the terminal log lines, the product cards — is computed from those real JSON files at render time; nothing is hardcoded or simulated. The "Re-check now" button doesn't fake a scraping animation — it force-refetches the same JSON with a real loading state.
 
 ---
 
@@ -193,12 +193,11 @@ These aren't hypothetical — they happened while building this, and Sentinel's 
 | `sentinel.py` | Core watcher: run → validate → diagnose → heal → approve → verify → log |
 | `tracker.py` | Diffs each run against the last snapshot; logs price/stock changes |
 | `schema.amkette.json` | Expected fields/types for validation, including nested `price.value` |
-| `console.html` | Unified dashboard — health ring, sparkline, live healing log, product tracker |
-| `dashboard.html` / `products.html` | Earlier standalone views (kept for reference) |
-| `index.html` | Landing page linking to all views |
+| `index.html` | The unified console — sidebar nav (Overview / Healing Log / Products / Settings), health ring, sparkline, live healing log, and the product tracker, all in one page |
 | `healing_log.json` | Runtime — append-only healing event history (written by `sentinel.py`) |
 | `products_snapshot.json` | Runtime — latest known state per product (written by `tracker.py`) |
 | `product_changes.json` | Runtime — append-only price/stock change log (written by `tracker.py`) |
+| `.github/workflows/self-heal.yml` | GitHub Actions — runs Sentinel + Tracker on a 6-hour schedule and commits the updated state automatically |
 
 ---
 
@@ -226,7 +225,7 @@ python3 tracker.py \
 
 # 5. View it
 python3 -m http.server 8000
-# open http://localhost:8000
+# open http://localhost:8000  (loads the console directly)
 ```
 
 Continuous watching (instead of `--once`):
@@ -262,7 +261,7 @@ One real record from a live run:
 ## How this maps to the judging tracks
 
 - **Web-Slinger (Best Use of Bright Data)** — custom collector built in Scraper Studio, driven entirely from a coding agent via the CLI, real `heal`/`approve` calls (not mocked), and structured output feeding a second real feature (Tracker).
-- **Suit-Up (Best UI)** — `console.html`: real charts, real terminal-style logs, glassmorphism, all backed by live data, no hardcoded/simulated content.
+- **Suit-Up (Best UI)** — `index.html`: real charts, real terminal-style logs, glassmorphism, all backed by live data, no hardcoded/simulated content.
 - **Spider-Sense (Best Clean Code)** — dataclasses for structured state (`FieldSpec`, `HealthReport`, `Event`), explicit edge-case handling (zero records, CLI timeouts/failures, nested fields), and every failure mode logged rather than swallowed.
 
 ---
@@ -276,4 +275,4 @@ One real record from a live run:
 
 ## AI-assistance disclosure
 
-`sentinel.py`, `tracker.py`, `console.html`, `dashboard.html`, `products.html`, `index.html`, and this README were built with Claude (Anthropic) acting as a coding agent, based on the Bright Data CLI's documented commands (`scraper create/run/heal/approve`). Claude scaffolded the initial watcher, fixed real bugs found while running against the live CLI (a missing `--urls` flag, schema validation that didn't support the real nested `price` object), added the `--simulate-break` demo mode, built the Tracker feature, and did the visual design pass. The scraper's target site, schema, collector ID, and all debugging decisions — including diagnosing and resolving a real 409 stuck-job error during testing — were driven by the project author, who has read through `sentinel.py` and can explain its validation and diagnosis logic.
+`sentinel.py`, `tracker.py`, `index.html`, and this README were built with Claude (Anthropic) acting as a coding agent, based on the Bright Data CLI's documented commands (`scraper create/run/heal/approve`). Claude scaffolded the initial watcher, fixed real bugs found while running against the live CLI (a missing `--urls` flag, schema validation that didn't support the real nested `price` object), added the `--simulate-break` demo mode, built the Tracker feature, the GitHub Actions scheduling workflow, and did the visual design pass. The scraper's target site, schema, collector ID, and all debugging decisions — including diagnosing and resolving a real 409 stuck-job error during testing — were driven by the project author, who has read through `sentinel.py` and can explain its validation and diagnosis logic.
