@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EvoFox Tracker — Live Catalog</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0e16;
+    --surface: #12161f;
+    --surface-2: #181d29;
+    --border: #232a38;
+    --text: #e7ebf3;
+    --muted: #7c869a;
+    --ok: #3ddc97;
+    --warn: #f5a623;
+    --bad: #ff5c72;
+    --accent: #6f8cff;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(111,140,255,0.07), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(61,220,151,0.05), transparent 40%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px 44px 64px;
+    min-height: 100vh;
+  }
+  .thread-bg {
+    position: fixed; inset: 0; pointer-events: none; opacity: 0.35;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(111,140,255,0.035) 0px, rgba(111,140,255,0.035) 1px, transparent 1px, transparent 120px),
+      repeating-linear-gradient(25deg, rgba(111,140,255,0.03) 0px, rgba(111,140,255,0.03) 1px, transparent 1px, transparent 160px);
+    z-index: 0;
+  }
+  .page { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; }
+
+  header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  .live-dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(111,140,255,0.6);
+    animation: pulse 2.2s ease-out infinite; flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(111,140,255,0.55); }
+    70%  { box-shadow: 0 0 0 9px rgba(111,140,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(111,140,255,0); }
+  }
+  h1 { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .sub { color: var(--muted); margin: 6px 0 34px; font-size: 14px; }
+
+  h2 {
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.14em; margin: 0 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+  .product {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .product::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent); opacity: 0.5;
+  }
+  .product:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .product .title {
+    font-family: var(--font-display);
+    font-weight: 600; font-size: 14.5px; margin-bottom: 12px; line-height: 1.35;
+    min-height: 38px;
+  }
+  .product .row { display: flex; justify-content: space-between; align-items: center; }
+  .price {
+    font-family: var(--font-mono); font-size: 19px; font-weight: 600;
+    color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .status { font-family: var(--font-mono); padding: 3px 9px; border-radius: 6px; font-size: 11px; letter-spacing: 0.02em; }
+  .status.in-stock { background: rgba(61,220,151,0.13); color: var(--ok); }
+  .status.sold-out { background: rgba(255,92,114,0.13); color: var(--bad); }
+  .badge {
+    display: inline-block; margin-top: 10px; font-family: var(--font-mono);
+    font-size: 11.5px; padding: 4px 9px; border-radius: 6px;
+  }
+  .badge.drop { background: rgba(61,220,151,0.13); color: var(--ok); }
+  .badge.rise { background: rgba(255,92,114,0.13); color: var(--bad); }
+  .badge.restock { background: rgba(111,140,255,0.15); color: var(--accent); }
+
+  .changes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 40px; }
+  .change {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 11px 16px; display: flex; justify-content: space-between;
+    gap: 14px; font-size: 13px; align-items: baseline;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .change:hover { transform: translateX(2px); }
+  .change.price-change { border-left-color: var(--warn); }
+  .change.stock-change { border-left-color: var(--accent); }
+  .change.new-product { border-left-color: var(--ok); }
+  .change .time { font-family: var(--font-mono); color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+  .empty {
+    color: var(--muted); font-family: var(--font-mono); font-size: 13px;
+    padding: 30px; text-align: center; border: 1px dashed var(--border); border-radius: 14px;
+  }
+  .empty code { color: var(--accent); }
+</style>
+</head>
+<body>
+  <div class="thread-bg"></div>
+  <div class="page">
+    <header>
+      <span class="live-dot"></span>
+      <h1>EvoFox Tracker</h1>
+    </header>
+    <div class="sub">
+      <span class="eyebrow">Live catalog</span> — price & stock history built on Sentinel's validated data
+    </div>
+
+    <h2>Recent Changes</h2>
+    <div class="changes" id="changes"></div>
+
+    <h2>Current Catalog</h2>
+    <div class="grid" id="grid"></div>
+  </div>
+
+<script>
+function fmtPrice(p) {
+  return p === null || p === undefined ? '—' : '₹' + p.toLocaleString('en-IN');
+}
+
+async function load() {
+  let snapshot = {}, changes = [];
+  try {
+    const [snapRes, changesRes] = await Promise.all([
+      fetch('products_snapshot.json', { cache: 'no-store' }),
+      fetch('product_changes.json', { cache: 'no-store' })
+    ]);
+    snapshot = await snapRes.json();
+    changes = await changesRes.json();
+  } catch (e) {
+    document.getElementById('grid').innerHTML =
+      '<div class="empty">No snapshot yet. Run <code>python3 tracker.py --collector-id ... --url ...</code> ' +
+      'at least once, then serve this folder (e.g. <code>python3 -m http.server</code>).</div>';
+    return;
+  }
+
+  const latestChangeByProduct = {};
+  for (const c of changes) {
+    latestChangeByProduct[c.product_page_url] = c;
+  }
+
+  const products = Object.values(snapshot);
+  const gridEl = document.getElementById('grid');
+  if (products.length === 0) {
+    gridEl.innerHTML = '<div class="empty">No products tracked yet.</div>';
+  } else {
+    gridEl.innerHTML = products.map(p => {
+      const inStock = (p.availability || '').toLowerCase().includes('cart');
+      const change = latestChangeByProduct[p.product_page_url];
+      let badge = '';
+      if (change) {
+        if (change.kind === 'price_change') {
+          const dropped = change.delta < 0;
+          badge = `<div class="badge ${dropped ? 'drop' : 'rise'}">${dropped ? '↓' : '↑'} ${fmtPrice(Math.abs(change.delta))} ${dropped ? 'drop' : 'rise'}</div>`;
+        } else if (change.kind === 'stock_change') {
+          badge = `<div class="badge restock">${change.old_status} → ${change.new_status}</div>`;
+        } else if (change.kind === 'new_product') {
+          badge = `<div class="badge restock">New listing</div>`;
+        }
+      }
+      return `<div class="product">
+        <div class="title">${p.title}</div>
+        <div class="row">
+          <span class="price">${fmtPrice(p.price)}</span>
+          <span class="status ${inStock ? 'in-stock' : 'sold-out'}">${p.availability || '—'}</span>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+  }
+
+  const changesEl = document.getElementById('changes');
+  if (changes.length === 0) {
+    changesEl.innerHTML = '<div class="empty">No changes recorded yet — run tracker.py more than once to start detecting changes.</div>';
+    return;
+  }
+  changesEl.innerHTML = [...changes].reverse().slice(0, 30).map(c => {
+    let cls = '', text = '';
+    if (c.kind === 'price_change') {
+      cls = 'price-change';
+      text = `${c.title}: ${fmtPrice(c.old_price)} → ${fmtPrice(c.new_price)}`;
+    } else if (c.kind === 'stock_change') {
+      cls = 'stock-change';
+      text = `${c.title}: ${c.old_status} → ${c.new_status}`;
+    } else if (c.kind === 'new_product') {
+      cls = 'new-product';
+      text = `New product: ${c.title}`;
+    }
+    return `<div class="change ${cls}">
+      <span>${text}</span>
+      <span class="time">${new Date(c.timestamp).toLocaleString()}</span>
+    </div>`;
+  }).join('');
+}
+load();
+setInterval(load, 3000);
+</script>
+</body>
+</html>

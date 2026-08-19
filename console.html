@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sentinel Console — Self-Healing Scraper</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #07090f;
+    --surface: rgba(20,24,34,0.55);
+    --surface-solid: #12161f;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(111,140,255,0.35);
+    --text: #eef1f8;
+    --muted: #838ea3;
+    --ok: #3ddc97;
+    --warn: #f5a623;
+    --bad: #ff5c72;
+    --accent: #7c8cff;
+    --accent-2: #3ddc97;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 10% -10%, rgba(124,140,255,0.14), transparent 40%),
+      radial-gradient(circle at 90% 0%, rgba(61,220,151,0.10), transparent 35%),
+      radial-gradient(circle at 50% 100%, rgba(124,140,255,0.06), transparent 45%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    display: flex;
+    min-height: 100vh;
+  }
+  .thread-bg {
+    position: fixed; inset: 0; pointer-events: none; opacity: 0.4; z-index: 0;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(124,140,255,0.03) 0px, rgba(124,140,255,0.03) 1px, transparent 1px, transparent 130px),
+      repeating-linear-gradient(25deg, rgba(124,140,255,0.025) 0px, rgba(124,140,255,0.025) 1px, transparent 1px, transparent 170px);
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 220px; flex-shrink: 0; padding: 26px 16px;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 4px;
+    position: relative; z-index: 2;
+    backdrop-filter: blur(20px);
+    background: rgba(10,13,20,0.4);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 6px 10px 26px; }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(61,220,151,0.6);
+    animation: pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(61,220,151,0.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(61,220,151,0); }
+    100% { box-shadow: 0 0 0 0 rgba(61,220,151,0); }
+  }
+  .brand .name { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+  .nav-item {
+    font-family: var(--font-body); font-size: 13.5px; font-weight: 500;
+    color: var(--muted); padding: 10px 12px; border-radius: 9px;
+    cursor: pointer; display: flex; align-items: center; gap: 10px;
+    position: relative; transition: color 0.15s ease;
+    background: transparent;
+  }
+  .nav-item .ic { font-size: 15px; width: 18px; text-align: center; }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .nav-item.active {
+    color: var(--text);
+    background: linear-gradient(90deg, rgba(124,140,255,0.16), rgba(124,140,255,0.02));
+    border: 1px solid var(--border-strong);
+  }
+  .sidebar-foot {
+    margin-top: auto; padding: 12px 12px 4px;
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--muted);
+    border-top: 1px solid var(--border); padding-top: 16px; line-height: 1.6;
+  }
+
+  /* ---------- Main ---------- */
+  main { flex: 1; padding: 30px 38px 60px; position: relative; z-index: 1; max-width: 1240px; }
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; gap: 20px; flex-wrap: wrap; }
+  .eyebrow { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: 25px; margin: 0; letter-spacing: -0.01em; }
+  .target-row {
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .pill {
+    background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(12px);
+    padding: 4px 10px; border-radius: 999px; font-size: 11px;
+  }
+
+  .refresh-btn {
+    font-family: var(--font-display); font-weight: 600; font-size: 13.5px;
+    color: #07090f; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none; padding: 11px 20px; border-radius: 11px; cursor: pointer;
+    display: flex; align-items: center; gap: 9px;
+    box-shadow: 0 0 0 0 rgba(124,140,255,0.4);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .refresh-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,140,255,0.35); }
+  .refresh-btn:active { transform: translateY(0); }
+  .refresh-btn.loading { pointer-events: none; opacity: 0.85; }
+  .spin { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(7,9,15,0.3); border-top-color: #07090f; display: none; }
+  .refresh-btn.loading .spin { display: inline-block; animation: spin 0.7s linear infinite; }
+  .refresh-btn.loading .btn-label::after { content: 'Checking…'; }
+  .refresh-btn .btn-label::after { content: 'Re-check now'; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Metric cards ---------- */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(18px);
+    border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0; border-radius: 16px; padding: 1px;
+    background: linear-gradient(135deg, rgba(124,140,255,0.4), transparent 60%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  .card .label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+  .card .value { font-family: var(--font-display); font-size: 30px; font-weight: 700; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .value.ok { color: var(--ok); } .value.warn { color: var(--warn); } .value.bad { color: var(--bad); }
+
+  .ring-card { display: flex; align-items: center; gap: 16px; }
+  .ring-card .ring-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .ring-card svg { transform: rotate(-90deg); }
+  .ring-card .ring-pct {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+  }
+
+  /* ---------- Chart ---------- */
+  .chart-card { grid-column: 1 / -1; }
+  .chart-card .value { font-size: 15px; font-family: var(--font-mono); font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .sparkline { width: 100%; height: 64px; margin-top: 10px; }
+
+  /* ---------- Terminal console ---------- */
+  h2 { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.13em; margin: 30px 0 12px; display: flex; align-items: center; gap: 10px; }
+  h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .terminal {
+    background: rgba(8,10,16,0.7); border: 1px solid var(--border); backdrop-filter: blur(18px);
+    border-radius: 14px; padding: 0; overflow: hidden;
+  }
+  .terminal-head {
+    display: flex; align-items: center; gap: 7px; padding: 11px 16px;
+    border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);
+  }
+  .terminal-head .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-head .dot:nth-child(1) { background: #ff5f57; }
+  .terminal-head .dot:nth-child(2) { background: #febc2e; }
+  .terminal-head .dot:nth-child(3) { background: #28c840; }
+  .terminal-head .path { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: 8px; }
+  .terminal-body { padding: 16px 18px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.85; max-height: 420px; overflow-y: auto; }
+  .log-line { display: flex; gap: 10px; }
+  .log-line .ts { color: #4b5468; flex-shrink: 0; }
+  .log-line .kind { flex-shrink: 0; }
+  .log-line .kind.run { color: var(--accent); } .log-line .kind.diagnose { color: var(--warn); }
+  .log-line .kind.heal { color: var(--warn); } .log-line .kind.approve { color: var(--accent); }
+  .log-line .kind.verify { color: var(--ok); } .log-line .kind.fail { color: var(--bad); }
+  .log-line .msg { color: #c4cade; word-break: break-word; }
+  .empty { color: var(--muted); font-family: var(--font-mono); font-size: 13px; padding: 30px; text-align: center; border: 1px dashed var(--border); border-radius: 14px; }
+  .empty code { color: var(--accent); }
+
+  /* ---------- Products view ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 13px; }
+  .product {
+    background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(18px);
+    border-radius: 14px; padding: 17px; transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .product:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+  .product .title { font-family: var(--font-display); font-weight: 600; font-size: 13.5px; margin-bottom: 11px; line-height: 1.35; min-height: 36px; }
+  .product .row { display: flex; justify-content: space-between; align-items: center; }
+  .price { font-family: var(--font-mono); font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .status { font-family: var(--font-mono); padding: 3px 8px; border-radius: 6px; font-size: 10.5px; }
+  .status.in-stock { background: rgba(61,220,151,0.13); color: var(--ok); }
+  .status.sold-out { background: rgba(255,92,114,0.13); color: var(--bad); }
+  .badge { display: inline-block; margin-top: 9px; font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; border-radius: 6px; }
+  .badge.drop { background: rgba(61,220,151,0.13); color: var(--ok); }
+  .badge.rise { background: rgba(255,92,114,0.13); color: var(--bad); }
+  .badge.restock { background: rgba(124,140,255,0.16); color: var(--accent); }
+
+  .view { display: none; } .view.active { display: block; }
+
+  @media (max-width: 760px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    .brand, .sidebar-foot { display: none; }
+    main { padding: 24px 18px 50px; }
+  }
+</style>
+</head>
+<body>
+  <div class="thread-bg"></div>
+
+  <nav class="sidebar">
+    <div class="brand"><span class="live-dot"></span><span class="name">Sentinel</span></div>
+    <div class="nav-item active" data-view="overview"><span class="ic">◆</span>Overview</div>
+    <div class="nav-item" data-view="logs"><span class="ic">▤</span>Healing Log</div>
+    <div class="nav-item" data-view="products"><span class="ic">▦</span>Products</div>
+    <div class="nav-item" data-view="settings"><span class="ic">⚙</span>Settings</div>
+    <div class="sidebar-foot">Into the Scrape-Verse<br>Bright Data Scraper Studio</div>
+  </nav>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <span class="eyebrow">Self-healing scraper monitor</span>
+        <h1>Collector Console</h1>
+        <div class="target-row">
+          <span class="pill" id="target-pill">amkette.com/pages/evofox</span>
+          <span class="pill" id="collector-pill">c_msyndimi68dk1qu6l</span>
+        </div>
+      </div>
+      <button class="refresh-btn" id="refresh-btn">
+        <span class="spin"></span><span class="btn-label"></span>
+      </button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="view active" id="view-overview">
+      <div class="metrics" id="metrics"></div>
+      <div class="card chart-card">
+        <div class="label">Health Over Time</div>
+        <div class="value" id="chart-caption">—</div>
+        <svg class="sparkline" id="sparkline" viewBox="0 0 600 64" preserveAspectRatio="none"></svg>
+      </div>
+    </section>
+
+    <!-- LOGS -->
+    <section class="view" id="view-logs">
+      <h2>Healing Timeline</h2>
+      <div class="terminal">
+        <div class="terminal-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="path">healing_log.json</span></div>
+        <div class="terminal-body" id="terminal-body"></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="view" id="view-products">
+      <h2>Recent Changes</h2>
+      <div class="terminal" style="margin-bottom:26px;">
+        <div class="terminal-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="path">product_changes.json</span></div>
+        <div class="terminal-body" id="changes-body"></div>
+      </div>
+      <h2>Current Catalog</h2>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <h2>Project Info</h2>
+      <div class="terminal">
+        <div class="terminal-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="path">config</span></div>
+        <div class="terminal-body" style="line-height:2.1;">
+          <div class="log-line"><span class="kind run">target</span><span class="msg">https://www.amkette.com/pages/evofox</span></div>
+          <div class="log-line"><span class="kind run">collector_id</span><span class="msg">c_msyndimi68dk1qu6l</span></div>
+          <div class="log-line"><span class="kind verify">scraper</span><span class="msg">custom Bright Data Scraper Studio collector</span></div>
+          <div class="log-line"><span class="kind heal">self-heal</span><span class="msg">bdata scraper heal → approve, human-in-the-loop unless --auto-approve</span></div>
+          <div class="log-line"><span class="kind diagnose">refresh</span><span class="msg">this console reloads real JSON from disk every 3s; "Re-check now" forces an immediate reload</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+  // ---------- nav ----------
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById('view-' + item.dataset.view).classList.add('active');
+    });
+  });
+
+  function fmtPrice(p) { return p === null || p === undefined ? '—' : '₹' + p.toLocaleString('en-IN'); }
+
+  function ringSVG(pct, color) {
+    const r = 26, c = 2 * Math.PI * r;
+    const offset = c - (Math.max(0, Math.min(100, pct)) / 100) * c;
+    return `<svg width="64" height="64" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="${r}" stroke="rgba(255,255,255,0.08)" stroke-width="6" fill="none"/>
+      <circle cx="32" cy="32" r="${r}" stroke="${color}" stroke-width="6" fill="none"
+        stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  async function loadAll() {
+    let events = [], snapshot = {}, changes = [];
+    try {
+      const res = await fetch('healing_log.json', { cache: 'no-store' });
+      events = await res.json();
+    } catch (e) { events = null; }
+    try {
+      const [snapRes, changesRes] = await Promise.all([
+        fetch('products_snapshot.json', { cache: 'no-store' }),
+        fetch('product_changes.json', { cache: 'no-store' })
+      ]);
+      snapshot = await snapRes.json();
+      changes = await changesRes.json();
+    } catch (e) { /* tracker not run yet */ }
+
+    renderOverview(events || []);
+    renderLogs(events || []);
+    renderProducts(snapshot, changes);
+  }
+
+  function renderOverview(events) {
+    const metricsEl = document.getElementById('metrics');
+    if (!events.length) {
+      metricsEl.innerHTML = '<div class="empty">No healing_log.json found. Run <code>sentinel.py</code> at least once.</div>';
+      document.getElementById('chart-caption').textContent = '—';
+      document.getElementById('sparkline').innerHTML = '';
+      return;
+    }
+    const runs = events.filter(e => e.kind === 'run');
+    const heals = events.filter(e => e.kind === 'heal');
+    const healthEvents = events.filter(e => e.kind === 'run' || e.kind === 'verify');
+    const last = healthEvents[healthEvents.length - 1];
+    const health = last ? Math.round((last.detail.healthy_fraction || 0) * 100) : null;
+    const healthCls = health === null ? '' : health >= 85 ? 'ok' : health >= 50 ? 'warn' : 'bad';
+    const healthColor = health === null ? '#7c8cff' : health >= 85 ? '#3ddc97' : health >= 50 ? '#f5a623' : '#ff5c72';
+
+    metricsEl.innerHTML = `
+      <div class="card ring-card">
+        <div class="ring-wrap">${ringSVG(health ?? 0, healthColor)}<div class="ring-pct ${healthCls}">${health === null ? '—' : health + '%'}</div></div>
+        <div><div class="label">Current Health</div><div class="value ${healthCls}" style="font-size:18px;margin-top:4px;">${health === null ? 'no data' : health >= 85 ? 'Healthy' : health >= 50 ? 'Degraded' : 'Broken'}</div></div>
+      </div>
+      <div class="card"><div class="label">Total Runs</div><div class="value">${runs.length}</div></div>
+      <div class="card"><div class="label">Heal Attempts</div><div class="value">${heals.length}</div></div>
+      <div class="card"><div class="label">Last Record Count</div><div class="value">${last ? last.detail.total_records : '—'}</div></div>
+    `;
+
+    // real sparkline from health history
+    const pts = healthEvents.map(e => Math.round((e.detail.healthy_fraction || 0) * 100));
+    document.getElementById('chart-caption').textContent = `${pts.length} check${pts.length === 1 ? '' : 's'} · last ${pts[pts.length-1] ?? 0}%`;
+    const svg = document.getElementById('sparkline');
+    if (pts.length < 2) {
+      svg.innerHTML = pts.length === 1 ? `<circle cx="300" cy="${64 - pts[0]*0.6}" r="3" fill="#7c8cff"/>` : '';
+    } else {
+      const stepX = 600 / (pts.length - 1);
+      const coords = pts.map((v, i) => `${i*stepX},${64 - v*0.6}`).join(' ');
+      const areaCoords = `0,64 ${coords} 600,64`;
+      svg.innerHTML = `
+        <polyline points="${areaCoords}" fill="rgba(124,140,255,0.12)" stroke="none"/>
+        <polyline points="${coords}" fill="none" stroke="#7c8cff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        ${pts.map((v,i)=>`<circle cx="${i*stepX}" cy="${64-v*0.6}" r="2.5" fill="#7c8cff"/>`).join('')}
+      `;
+    }
+  }
+
+  function renderLogs(events) {
+    const el = document.getElementById('terminal-body');
+    if (!events.length) {
+      el.innerHTML = '<div class="empty">No events yet. Run <code>sentinel.py</code> to generate the healing log.</div>';
+      return;
+    }
+    el.innerHTML = [...events].reverse().map(e => {
+      const cls = !e.success ? 'fail' : e.kind;
+      let msg = '';
+      if (e.kind === 'run' || e.kind === 'verify') {
+        msg = `health ${Math.round((e.detail.healthy_fraction||0)*100)}% · ${e.detail.total_records ?? '?'} records` +
+              (e.detail.broken_fields?.length ? ` · broken: ${e.detail.broken_fields.join(', ')}` : '');
+      } else if (e.kind === 'diagnose') { msg = e.detail.prompt; }
+      else if (e.detail.error) { msg = e.detail.error.slice(0, 200); }
+      return `<div class="log-line">
+        <span class="ts">${new Date(e.timestamp).toLocaleTimeString()}</span>
+        <span class="kind ${cls}">${e.kind}${e.success ? '' : '(failed)'}</span>
+        <span class="msg">${msg}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderProducts(snapshot, changes) {
+    const latestChangeByProduct = {};
+    for (const c of changes) latestChangeByProduct[c.product_page_url] = c;
+
+    const products = Object.values(snapshot);
+    const gridEl = document.getElementById('grid');
+    if (!products.length) {
+      gridEl.innerHTML = '<div class="empty">No products tracked yet. Run <code>tracker.py</code>.</div>';
+    } else {
+      gridEl.innerHTML = products.map(p => {
+        const inStock = (p.availability || '').toLowerCase().includes('cart');
+        const change = latestChangeByProduct[p.product_page_url];
+        let badge = '';
+        if (change) {
+          if (change.kind === 'price_change') {
+            const dropped = change.delta < 0;
+            badge = `<div class="badge ${dropped?'drop':'rise'}">${dropped?'↓':'↑'} ${fmtPrice(Math.abs(change.delta))}</div>`;
+          } else if (change.kind === 'stock_change') {
+            badge = `<div class="badge restock">${change.old_status} → ${change.new_status}</div>`;
+          } else if (change.kind === 'new_product') {
+            badge = `<div class="badge restock">New listing</div>`;
+          }
+        }
+        return `<div class="product">
+          <div class="title">${p.title}</div>
+          <div class="row"><span class="price">${fmtPrice(p.price)}</span><span class="status ${inStock?'in-stock':'sold-out'}">${p.availability||'—'}</span></div>
+          ${badge}
+        </div>`;
+      }).join('');
+    }
+
+    const changesEl = document.getElementById('changes-body');
+    if (!changes.length) {
+      changesEl.innerHTML = '<div class="empty">No changes recorded yet — run tracker.py more than once.</div>';
+      return;
+    }
+    changesEl.innerHTML = [...changes].reverse().slice(0, 30).map(c => {
+      let cls = '', text = '';
+      if (c.kind === 'price_change') { cls = 'heal'; text = `${c.title}: ${fmtPrice(c.old_price)} → ${fmtPrice(c.new_price)}`; }
+      else if (c.kind === 'stock_change') { cls = 'run'; text = `${c.title}: ${c.old_status} → ${c.new_status}`; }
+      else if (c.kind === 'new_product') { cls = 'verify'; text = `New: ${c.title}`; }
+      return `<div class="log-line"><span class="ts">${new Date(c.timestamp).toLocaleTimeString()}</span><span class="kind ${cls}">${c.kind}</span><span class="msg">${text}</span></div>`;
+    }).join('');
+  }
+
+  // ---------- refresh button: real reload, honest loading state ----------
+  document.getElementById('refresh-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('refresh-btn');
+    btn.classList.add('loading');
+    await loadAll();
+    setTimeout(() => btn.classList.remove('loading'), 350);
+  });
+
+  loadAll();
+  setInterval(loadAll, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "fields": [
+    { "name": "title", "type": "string", "required": true },
+    { "name": "price.value", "type": "number", "required": true },
+    { "name": "availability", "type": "string", "required": true },
+    { "name": "product_page_url", "type": "string", "required": false }
+  ]
+}

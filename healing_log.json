@@ -1,0 +1,174 @@
+[
+  {
+    "id": "3596039f",
+    "timestamp": "2026-08-18T12:44:41+00:00",
+    "kind": "run",
+    "success": false,
+    "detail": {
+      "error": "Command failed (1): bdata scraper run c_msyndimi68dk1qu6l -o run_output.json\nstdout: \nstderr: \u2717 scraper run requires one of: <url> positional, --urls, or --input-file."
+    }
+  },
+  {
+    "id": "43efbda3",
+    "timestamp": "2026-08-18T12:48:51+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 20,
+      "healthy_fraction": 1.0,
+      "broken_fields": []
+    }
+  },
+  {
+    "id": "437af3b8",
+    "timestamp": "2026-08-18T12:56:01+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 5,
+      "healthy_fraction": 0.0,
+      "broken_fields": [
+        "title",
+        "price.value",
+        "availability"
+      ]
+    }
+  },
+  {
+    "id": "ec930e44",
+    "timestamp": "2026-08-18T12:56:01+00:00",
+    "kind": "diagnose",
+    "success": true,
+    "detail": {
+      "prompt": "After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a layout/selector change on the target page. Please locate the current elements holding this data and update the extraction template accordingly."
+    }
+  },
+  {
+    "id": "68e6c769",
+    "timestamp": "2026-08-18T12:57:05+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 5,
+      "healthy_fraction": 0.0,
+      "broken_fields": [
+        "title",
+        "price.value",
+        "availability"
+      ]
+    }
+  },
+  {
+    "id": "4fb1feb3",
+    "timestamp": "2026-08-18T12:57:05+00:00",
+    "kind": "diagnose",
+    "success": true,
+    "detail": {
+      "prompt": "After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a layout/selector change on the target page. Please locate the current elements holding this data and update the extraction template accordingly."
+    }
+  },
+  {
+    "id": "9f187082",
+    "timestamp": "2026-08-18T12:57:07+00:00",
+    "kind": "heal",
+    "success": false,
+    "detail": {
+      "error": "Command failed (1): bdata scraper heal c_msyndimi68dk1qu6l After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a layout/selector change on the target page. Please locate the current elements holding this data and update the extraction template accordingly. --url https://www.amkette.com/pages/evofox -o heal_output.json\nstdout: \nstderr: Triggering self-healing...\nFailed to start self-healing for collector c_msyndimi68dk1qu6l: Error: Another refactor job is still in progress\n  Status: 409\nOutput written to heal_output.json\nNote: the heal did not complete, but scraper c_msyndimi68dk1qu6l is unchanged and still works as it did before.\nOpen https://brightdata.com/cp/scrapers/c_msyndimi68dk1qu6l to inspect it, or re-run `bdata scraper heal` with a sharper prompt."
+    }
+  },
+  {
+    "id": "5aff7eb3",
+    "timestamp": "2026-08-18T12:59:12+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 5,
+      "healthy_fraction": 0.0,
+      "broken_fields": [
+        "title",
+        "price.value",
+        "availability"
+      ]
+    }
+  },
+  {
+    "id": "b39f439c",
+    "timestamp": "2026-08-18T12:59:12+00:00",
+    "kind": "diagnose",
+    "success": true,
+    "detail": {
+      "prompt": "After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a layout/selector change on the target page. Please locate the current elements holding this data and update the extraction template accordingly."
+    }
+  },
+  {
+    "id": "f52e69c0",
+    "timestamp": "2026-08-18T12:59:14+00:00",
+    "kind": "heal",
+    "success": false,
+    "detail": {
+      "error": "Command failed (1): bdata scraper heal c_msyndimi68dk1qu6l After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a layout/selector change on the target page. Please locate the current elements holding this data and update the extraction template accordingly. --url https://www.amkette.com/pages/evofox -o heal_output.json\nstdout: \nstderr: Triggering self-healing...\nFailed to start self-healing for collector c_msyndimi68dk1qu6l: Error: Another refactor job is still in progress\n  Status: 409\nOutput written to heal_output.json\nNote: the heal did not complete, but scraper c_msyndimi68dk1qu6l is unchanged and still works as it did before.\nOpen https://brightdata.com/cp/scrapers/c_msyndimi68dk1qu6l to inspect it, or re-run `bdata scraper heal` with a sharper prompt."
+    }
+  },
+  {
+    "id": "6c89382e",
+    "timestamp": "2026-08-19T05:42:25+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 5,
+      "healthy_fraction": 0.0,
+      "broken_fields": [
+        "title",
+        "price.value",
+        "availability"
+      ]
+    }
+  },
+  {
+    "id": "9698c225",
+    "timestamp": "2026-08-19T05:42:25+00:00",
+    "kind": "diagnose",
+    "success": true,
+    "detail": {
+      "prompt": "After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a layout/selector change on the target page. Please locate the current elements holding this data and update the extraction template accordingly."
+    }
+  },
+  {
+    "id": "86ca8ae2",
+    "timestamp": "2026-08-19T05:46:11+00:00",
+    "kind": "heal",
+    "success": true,
+    "detail": {
+      "result_summary": "{'collector_id': 'c_msyndimi68dk1qu6l', 'status': 'awaiting_approval', 'completed_steps': ['planner', 'control_preview_runner', 'step_advance', 'control_preview_runner', 'code_fixer', 'step_preview_runner', 'request_fulfillment_validator', 'step_advance'], 'prompt': \"After a recent run, these fields are failing to extract: 'title' (missing/empty in 100% of records), 'price.value' (missing/empty in 100% of records), 'availability' (missing/empty in 100% of records). This is likely caused by a lay"
+    }
+  },
+  {
+    "id": "f60b7e51",
+    "timestamp": "2026-08-19T05:46:12+00:00",
+    "kind": "approve",
+    "success": true,
+    "detail": {}
+  },
+  {
+    "id": "d0b235c4",
+    "timestamp": "2026-08-19T05:46:19+00:00",
+    "kind": "verify",
+    "success": true,
+    "detail": {
+      "total_records": 20,
+      "healthy_fraction": 1.0,
+      "broken_fields": []
+    }
+  },
+  {
+    "id": "c4bd7189",
+    "timestamp": "2026-08-19T11:05:38+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 20,
+      "healthy_fraction": 1.0,
+      "broken_fields": []
+    }
+  }
+]
