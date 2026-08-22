@@ -42,23 +42,23 @@ Sentinel is the layer Scraper Studio doesn't provide out of the box: **the notic
 ## Architecture
 
 ```
-                    ┌─────────────────────────┐
+                    ┌─────────────────────────--┐
                     │   Bright Data Platform    │
-                    │   Scraper Studio Collector │
-                    │   (c_msyndimi68dk1qu6l)    │
-                    └────────────┬────────────┘
+                    │   Scraper Studio Collector│
+                    │   (c_msyndimi68dk1qu6l)   │
+                    └────────────┬────────────--┘
                                  │  bdata CLI
                                  │  (run / heal / approve)
                  ┌───────────────┴────────────────┐
                  │                                  │
-        ┌────────▼─────────┐              ┌────────▼─────────┐
-        │    sentinel.py     │              │    tracker.py      │
-        │  ─────────────────  │              │  ──────────────────  │
-        │  run → validate      │              │  run → diff vs.       │
-        │  → diagnose → heal    │              │  last snapshot →      │
-        │  → approve → verify    │              │  log price/stock       │
-        │  → log                  │              │  changes                 │
-        └────────┬───────────┘              └────────┬───────────┘
+        ┌────────▼─────────--┐              ┌───────▼─────────----┐
+        │    sentinel.py     │              │    tracker.py       │
+        │  ───────────────── │              │  ────────────────── │
+        │  run → validate    │              │  run → diff vs.     │
+        │  → diagnose → heal │              │  last snapshot →    │
+        │  → approve → verify│              │  log price/stock    │
+        │  → log             │              │  changes            │
+        └────────┬───────────┘              └────────┬───────────-┘
                  │ writes                              │ writes
                  ▼                                      ▼
         healing_log.json                    products_snapshot.json
@@ -66,11 +66,11 @@ Sentinel is the layer Scraper Studio doesn't provide out of the box: **the notic
                  │                                      │
                  └──────────────────┬───────────────────┘
                                     ▼
-                        ┌───────────────────────┐
-                        │        index.html         │
-                        │  (static, reads JSON       │
+                        ┌───────────────────────-------┐
+                        │        index.html            │
+                        │  (static, reads JSON         │
                         │   over fetch, no backend)    │
-                        └───────────────────────┘
+                        └──────────────────────-------─┘
 ```
 
 Two independent Python scripts, both thin wrappers around the same `bdata` CLI primitives, writing separate JSON files that a single static frontend reads. No server, no database — the JSON files on disk *are* the state.
