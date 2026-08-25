@@ -434,5 +434,16 @@
       "healthy_fraction": 1.0,
       "broken_fields": []
     }
+  },
+  {
+    "id": "3671a141",
+    "timestamp": "2026-08-25T06:59:19+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 20,
+      "healthy_fraction": 1.0,
+      "broken_fields": []
+    }
   }
 ]
