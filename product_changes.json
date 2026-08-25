@@ -318,5 +318,29 @@
     "title": "EvoFox Hyperion 7.1 USB A+C Wired Headphone",
     "price": 2499,
     "availability": "Add to cart"
+  },
+  {
+    "timestamp": "2026-08-25T13:00:55+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-frost-plus-laptop-cooling-pad",
+    "title": "EvoFox Frost Plus Laptop Cooling Pad",
+    "old_status": "Add to cart",
+    "new_status": "Sold out"
+  },
+  {
+    "timestamp": "2026-08-25T13:00:55+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-hailstone-s-phone-cooler",
+    "title": "EvoFox Hailstone S Phone Cooler",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-08-25T13:00:55+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/katana-s-mini-tri-mode-wireless-mechanical-gaming-keyboard",
+    "title": "Katana S Mini Tri-Mode Wireless Mechanical Gaming Keyboard",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
   }
 ]
