@@ -342,5 +342,37 @@
     "title": "Katana S Mini Tri-Mode Wireless Mechanical Gaming Keyboard",
     "old_status": "Sold out",
     "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-08-26T07:00:49+00:00",
+    "kind": "new_product",
+    "product_page_url": "https://www.amkette.com/products/evofox-ronin-x75-plus-tri-mode-wireless-mechanical-gaming-keyboard",
+    "title": "EvoFox Ronin X75 Plus Tri-Mode Wireless Mechanical Gaming Keyboard",
+    "price": 5999,
+    "availability": "Sold out"
+  },
+  {
+    "timestamp": "2026-08-26T07:00:49+00:00",
+    "kind": "new_product",
+    "product_page_url": "https://www.amkette.com/products/evofox-deck-2-smartphone-gamepad",
+    "title": "EvoFox Deck 2 Smartphone Gamepad",
+    "price": 2999,
+    "availability": "Add to cart"
+  },
+  {
+    "timestamp": "2026-08-26T07:00:49+00:00",
+    "kind": "new_product",
+    "product_page_url": "https://www.amkette.com/products/evofox-ghost-x-pro-tri-mode-wireless-gaming-mouse",
+    "title": "EvoFox Ghost X Pro Tri-Mode Wireless Gaming Mouse",
+    "price": 3299,
+    "availability": "Add to cart"
+  },
+  {
+    "timestamp": "2026-08-26T07:00:49+00:00",
+    "kind": "new_product",
+    "product_page_url": "https://www.amkette.com/products/evofox-play-2-wireless-gaming-controller",
+    "title": "EvoFox Play 2 Wireless Gaming Controller",
+    "price": 1999,
+    "availability": "Add to cart"
   }
 ]
