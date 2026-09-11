@@ -430,5 +430,53 @@
     "title": "EvoFox Warhammer 2 Gaming Keyboard & Mouse",
     "price": 1299,
     "availability": "Sold out"
+  },
+  {
+    "timestamp": "2026-09-11T11:04:26+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-go-smartphone-bluetooth-gamepad",
+    "title": "EvoFox Go Smartphone Bluetooth Gamepad",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-09-11T11:04:26+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-deck-2-smartphone-gamepad",
+    "title": "EvoFox Deck 2 Smartphone Gamepad",
+    "old_status": "Add to cart",
+    "new_status": "Sold out"
+  },
+  {
+    "timestamp": "2026-09-11T11:04:26+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofoxwarhammer-2-gaming-keyboard-mouse",
+    "title": "EvoFox Warhammer 2 Gaming Keyboard & Mouse",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-09-11T11:04:26+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-katana-x2-tkl-tri-mode-wireless-mechanical-gaming-keyboard",
+    "title": "EvoFox Katana X2 TKL Tri-Mode Wireless Mechanical Gaming Keyboard",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-09-11T11:04:26+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-play-2-wireless-gaming-controller",
+    "title": "EvoFox Play 2 Wireless Gaming Controller",
+    "old_status": "Add to cart",
+    "new_status": "Sold out"
+  },
+  {
+    "timestamp": "2026-09-11T11:04:26+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-elite-x2-pro-tri-mode-wireless-gamepad",
+    "title": "EvoFox Elite X2 Pro Tri Mode Wireless Gamepad",
+    "old_status": "Add to cart",
+    "new_status": "Sold out"
   }
 ]
