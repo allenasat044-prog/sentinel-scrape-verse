@@ -1281,5 +1281,16 @@
       "healthy_fraction": 1.0,
       "broken_fields": []
     }
+  },
+  {
+    "id": "a4bacf71",
+    "timestamp": "2026-09-15T16:47:41+00:00",
+    "kind": "run",
+    "success": true,
+    "detail": {
+      "total_records": 28,
+      "healthy_fraction": 1.0,
+      "broken_fields": []
+    }
   }
 ]
