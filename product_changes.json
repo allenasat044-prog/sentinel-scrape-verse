@@ -590,5 +590,45 @@
     "title": "EvoFox Ronin X75 Tri-Mode Wireless Mechanical Gaming Keyboard",
     "old_status": "Sold out",
     "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-10-19T12:52:04+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-ps5-cooling-dock",
+    "title": "EvoFox PS5 Cooling Dock",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-10-19T12:52:04+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-hyperion-7-1-usb-a-c-wired-headphone",
+    "title": "EvoFox Hyperion 7.1 USB A+C Wired Headphone",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-10-19T12:52:04+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-hailstone-s-phone-cooler",
+    "title": "EvoFox Hailstone S Phone Cooler",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-10-19T12:52:04+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-puppet-master-x85-gaming-mouse-pad",
+    "title": "EvoFox Puppet Master X85 Gaming Mouse Pad",
+    "old_status": "Sold out",
+    "new_status": "Add to cart"
+  },
+  {
+    "timestamp": "2026-10-19T12:52:04+00:00",
+    "kind": "stock_change",
+    "product_page_url": "https://www.amkette.com/products/evofox-go-smartphone-bluetooth-gamepad",
+    "title": "EvoFox Go Smartphone Bluetooth Gamepad",
+    "old_status": "Add to cart",
+    "new_status": "Sold out"
   }
 ]
